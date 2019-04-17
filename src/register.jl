@@ -109,7 +109,7 @@ struct RegBranch
     error::Union{Nothing, String}
 end
 
-function update_package_data(pkg::Pkg.Types.Project, package_repo, package_path, tree_hash)
+function update_package_data(pkg::Pkg.Types.Project, registry_path, package_repo, package_path, tree_hash)
     # package file
     @debug("update package data: package file")
     package_info = filter(((k,v),)->!(v isa Dict), Pkg.Types.destructure(pkg))
@@ -152,6 +152,9 @@ function update_package_data(pkg::Pkg.Types.Project, package_repo, package_path,
     else
         deps_data = Dict()
     end
+
+    registry_file = joinpath(registry_path, "Registry.toml")
+    registry_data = TOML.parsefile(registry_file)
 
     @debug("Verifying package name and uuid in deps")
     for (k, v) in pkg.deps
@@ -308,7 +311,7 @@ function register(
 
         try
             package_path = get_package_path(registry_path, pkg)
-            update_package_data(pkg, package_repo, package_path, tree_hash)
+            update_package_data(pkg, registry_path, package_repo, package_path, tree_hash)
             commit_registry(pkg, package_path, package_repo, tree_hash, git)
         catch err
             return RegBranch(pkg.name, pkg.version, branch, err)
@@ -346,7 +349,7 @@ function register(package::Module, registry_path; repo = nothing, commit = true,
 
     try
         package_path = get_package_path(registry_path, pkg)
-        update_package_data(pkg, package_repo, package_path, tree_hash)
+        update_package_data(pkg, registry_path, package_repo, package_path, tree_hash)
         commit && commit_registry(pkg, package_path, package_repo, tree_hash, git)
         clean_registry = false
     finally
