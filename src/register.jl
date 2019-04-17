@@ -171,8 +171,8 @@ function update_package_data(pkg::Pkg.Types.Project, registry_path, package_repo
                 throw(err)
             end
         else
-            err = "Error in `[deps]`: Package '$k' with UUID: $u not found in registry or stdlib"
-            throw(err)
+#             err = "Error in `[deps]`: Package '$k' with UUID: $u not found in registry or stdlib"
+#             throw(err)
         end
     end
 
