@@ -1,42 +1,55 @@
 # Registrator
 
-!["amelia robot logo"](graphics/logo.png)
+See https://github.com/JuliaComputing/Registrator.jl for the real Registrator.
 
-Click [here](https://github.com/apps/registratortest/installations/new) to install.
+This fork, adding minor fixes to
+https://github.com/adamslc/Registrator.jl/tree/refactor, has the sole
+purpose of enabling creation and manual updates of small private
+registries until Registrator proper supports that.
 
-Registrator is a GitHub app that automates creation of registration pull requests for your julia packages to the [General](https://github.com/JuliaRegistries/General) registry.
+## Compatibility
 
-#### How to use
+This package requires Julia 1.1 or later.
 
-1) Using a Pull Request:
+## Installation
 
-Create a pull request on the package repo with your project file changes. Add "@JuliaRegistrator `register()`" as the content body of the pull request if you are a collaboarator on the package repository. If you are not a collaborator ask someone who is to comment "@JuliaRegistrator `register()`" on the Pull Request. This will make Registrator add a pull request to General by looking at your pull request branch.
+```
+] add https://github.com/GunnarFarneback/Registrator.jl
+```
 
-2) Using an issue:
+## Create Registry
 
-Raise an issue in the package you wish to register. Add "@JuliaRegistrator `register()`" somewhere in the content of the issue if you are a collaborator to trigger Registrator. If you are not a collaborator ask someone who is to comment "@JuliaRegistrator `register()`" on the issue. This will make Registrator add a pull request to General with the appropriate changes. Registrator will look for the project file in the master branch by default. To use a custom branch comment with `register(name-of-your-branch)`.
+```
+using Registrator
+create_registry(<local path>, <repository url>, description = "My private registry")
+```
+This prepares a registry in the given directory, which must previously
+not exist. Review the result and `git push` it manually.
 
-3) Using a commit comment:
+## Add a Package
 
-On GitHub click on a commit that you wish to register. In the comment section below say "@JuliaRegistrator `register()`". Note that you must be a collaborator in order to do this.
+```
+using Registrator
+using MyPackage
+register(MyPackage, <registry path>)
+```
 
-#### Approving pull requests on the registry
+This assumes that you have a clean working copy of your registry at
+`<registry path>` and adds `MyPackage` to the working copy. Review the
+result and `git push` it manually. With the keyword argument
+`commit = false`, the changes are made to the working copy but are not
+committed.
 
-Comment with "@JuliaRegistrator `approved()`" on a pull request on the registry to approve it. This will make Registrator to merge the pull request on the package (if any) and create a new tag and release. The approved PR will also be merged after that.
+Notes:
+* The package must be stored as a git working copy, e.g. using
+  `Pkg.develop`.
+* The package must have a `Project.toml` file.
+* There is no checking that the dependencies are available in any
+  registry.
 
-#### Permissions and subscribed events for the app
+## Add a New Version of a Package
 
-You will need read-only permission for: Repository contents, Repository Metadata
-
-You will need read & write permission for: Issues, Pull Requests, Commit Statuses
-
-You will need to subscribe to the following events: Issue comment and commit comment
-
-#### How to run
-
-See the `image` directory on how to build the docker image.
-
-#### For private packages and registries
-
-* Same [install](https://github.com/apps/registratortest/installations/new) step as above.
-* Add @JuliaRegistrator as a collaborator to your private Registry
+This is done in exactly the same way as adding a package. The only
+requirement is that the `version` field of the package's
+`Project.toml` is updated to a new version that is not already in the
+registry.
