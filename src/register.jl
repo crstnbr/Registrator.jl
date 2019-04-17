@@ -101,6 +101,20 @@ function write_toml(file::String, data::Dict)
     end
 end
 
+function write_registry(file::String, data::Dict)
+    data2 = deepcopy(data)
+    delete!(data2, "packages")
+    open(file, "w") do io
+        TOML.print(io, data2, sorted=true)
+        print(io, "\n[packages]\n")
+        for key in sort(collect(keys(data["packages"])))
+            name_str = string("\"", data["packages"][key]["name"], "\"")
+            path_str = string("\"", data["packages"][key]["path"], "\"")
+            println(io, key, " = { name = $(name_str), path = $(path_str) }")
+        end
+    end
+end
+
 struct RegBranch
     name::String
     version::VersionNumber
@@ -239,8 +253,13 @@ function get_package_path(registry_path, pkg::Pkg.Types.Project)
 
         @debug("Creating directory for new package $(pkg.name)")
         first_letter = uppercase(pkg.name[1])
-        package_path = joinpath(registry_path, "$first_letter", pkg.name)
+        relative_package_path = joinpath("$first_letter", pkg.name)
+        package_path = joinpath(registry_path, relative_package_path)
         mkpath(package_path)
+
+        registry_data["packages"][uuid] = Dict("name" => pkg.name,
+                                               "path" => relative_package_path)
+        write_registry(registry_file, registry_data)
     end
 
     return package_path
@@ -369,11 +388,8 @@ function create_registry(name, repo; description = nothing, gitconfig::Dict = Di
     registry_info["uuid"] = UUIDs.uuid1()
     registry_info["repo"] = repo
     description !== nothing && (registry_info["description"] = description)
-    write_toml(joinpath(path, "Registry.toml"), registry_info)
-
-    open(joinpath(path, "Registry.toml"), "a") do io
-        print(io, "[packages]")
-    end
+    registry_info["packages"] = Dict{String, Any}()
+    write_registry(joinpath(path, "Registry.toml"), registry_info)
 
     git = gitcmd(path, gitconfig)
     run(`$git init -q`)
