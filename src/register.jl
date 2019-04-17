@@ -350,6 +350,21 @@ function register(
     end
 end
 
+"""
+    using <package>
+    register(<package>, registry_path)
+
+Register `package` or a new version of `package` in the registry
+working copy at `registry_path`. The version number is obtained from
+the version field of the package's `Project.toml`.
+
+Note: This will only update the registry locally. Review the result
+and `git push` it manually.
+
+    register(<package>, registry_path; commit = false)
+
+Only make the changes to the registry but do not commit.
+"""
 function register(package::Module, registry_path; repo = nothing, commit = true,
                   gitconfig::Dict = Dict())
     registry_path = expanduser(registry_path)
@@ -380,6 +395,16 @@ function register(package::Module, registry_path; repo = nothing, commit = true,
     return
 end
 
+"""
+    create_registry(path, repo; description = nothing)
+
+Create a registry at the local directory `path` and with repository
+URL `repo`. Optionally add a description of the purpose of the
+registry with the keyword argument `description`.
+
+Note: This will only prepare the registry locally. Review the result
+and `git push` it manually.
+"""
 function create_registry(name, repo; description = nothing, gitconfig::Dict = Dict())
     path = joinpath(pwd(), name)
     isdir(path) && throw("$path already exists.")
