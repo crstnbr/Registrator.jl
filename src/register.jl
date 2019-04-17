@@ -275,7 +275,7 @@ function get_remote_repo(package_path, gitconfig)
     length(remote_name) > 1 && throw("Repository has multiple remotes.")
     # TODO: Handle this case?
     remote_name[1] == "" && throw("Repository does not have a remote.")
-    return read(`$git remote get-url $(remote_name[1])`, String)
+    return readchomp(`$git remote get-url $(remote_name[1])`)
 end
 
 """
