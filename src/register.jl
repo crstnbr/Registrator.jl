@@ -376,6 +376,8 @@ function register(package::Module, registry_path; repo = nothing, commit = true,
             run(`$git reset --hard`)
         end
     end
+
+    return
 end
 
 function create_registry(name, repo; description = nothing, gitconfig::Dict = Dict())
