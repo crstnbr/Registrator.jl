@@ -14,7 +14,7 @@ This package requires Julia 1.1 or later.
 ## Installation
 
 ```
-] add https://github.com/GunnarFarneback/Registrator.jl
+] add https://github.com/crstnbr/Registrator.jl
 ```
 
 ## Create Registry
