@@ -110,6 +110,7 @@ function write_registry(file::String, data::Dict)
         for key in sort(collect(keys(data["packages"])))
             name_str = string("\"", data["packages"][key]["name"], "\"")
             path_str = string("\"", escape_string(data["packages"][key]["path"]), "\"")
+            path_str = replace(path_str, "\\\\" => "/")
             println(io, key, " = { name = $(name_str), path = $(path_str) }")
         end
     end
